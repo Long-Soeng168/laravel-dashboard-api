@@ -1,0 +1,188 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Category;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Laravel\Facades\Image as ImageIntervention;
+
+class CategoryController extends Controller
+{
+    public function index()
+    {
+        $categories = Category::orderBy('title', 'asc')->get();
+        return response()->json($categories);
+    }
+
+    public function store(Request $request)
+    {
+
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'title_kh' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'code' => 'required|string|unique:categories,code',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        if ($request->hasFile('image')) {
+            $image_file = $request->file('image');
+            $image_file_name = time() . '_' . $image_file->getClientOriginalName();
+
+            // Define the path
+            $file_path = public_path('images/categories/');
+            $file_thumb_path = public_path('images/categories/thumb/');
+
+            // Check if directory exists, if not, create it
+            if (!File::exists($file_path)) {
+                File::makeDirectory($file_path, 0755, true, true);
+            }
+            if (!File::exists($file_thumb_path)) {
+                File::makeDirectory($file_thumb_path, 0755, true, true);
+            }
+
+            // Store Original Image
+            $image_file->storeAs('images/categories', $image_file_name, 'real_public');
+
+            // Resize and save the image
+            try {
+                $image = ImageIntervention::read($image_file);
+                $original_width = $image->width();
+                if ($original_width > 650) {
+                    $image->scale(width: 600)->save($file_thumb_path . $image_file_name);
+                } else {
+                    $image_file->storeAs('images/categories/thumb', $image_file_name, 'real_public');
+                }
+                $validated['image'] = $image_file_name;
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Image processing failed.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        $createdItem = Category::create($validated);
+        return response()->json($createdItem, 201);
+    }
+
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if (empty($category)) {
+            return response()->json([
+                'message' => 'Resource not found.',
+            ], 404);
+        }
+
+        return response()->json($category);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // return $r->all();
+        $category = Category::find($id);
+
+        if (empty($category)) {
+            return response()->json([
+                'message' => 'Resource not found.',
+            ], 404);
+        }
+
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'title_kh' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'code' => 'required|string|unique:categories,code, ' . $id,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        if ($request->hasFile('image')) {
+            $image_file = $request->file('image');
+            $image_file_name = time() . '_' . $image_file->getClientOriginalName();
+
+            // Define the path
+            $file_path = public_path('images/categories/');
+            $file_thumb_path = public_path('images/categories/thumb/');
+
+            // Check if directory exists, if not, create it
+            if (!File::exists($file_path)) {
+                File::makeDirectory($file_path, 0755, true, true);
+            }
+            if (!File::exists($file_thumb_path)) {
+                File::makeDirectory($file_thumb_path, 0755, true, true);
+            }
+
+            // Delete the old image and thumbnail if they exist
+            if ($category->image) {
+                $old_image_path = $file_path . $category->image;
+                $old_thumb_path = $file_thumb_path . $category->image;
+
+                if (File::exists($old_image_path)) {
+                    File::delete($old_image_path);
+                }
+                if (File::exists($old_thumb_path)) {
+                    File::delete($old_thumb_path);
+                }
+            }
+
+            // Store Original Image
+            $image_file->storeAs('images/categories', $image_file_name, 'real_public');
+
+            // Resize and save the image
+            try {
+                $image = ImageIntervention::read($image_file);
+                $original_width = $image->width();
+                if ($original_width > 650) {
+                    $image->scale(width: 600)->save($file_thumb_path . $image_file_name);
+                } else {
+                    $image_file->storeAs('images/categories/thumb', $image_file_name, 'real_public');
+                }
+                $validated['image'] = $image_file_name;
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Image processing failed.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        } else {
+            $validated['image'] = $category->image;
+        }
+
+
+        $category->update($validated);
+        return response()->json($category);
+    }
+
+    public function destroy($id)
+    {
+        $category = Category::find($id);
+
+        if (empty($category)) {
+            return response()->json([
+                'message' => 'Resource not found.',
+            ], 404);
+        }
+
+        $category->delete();
+        return response()->json([
+            'message' => 'Delete Success',
+        ], 200);
+    }
+}
