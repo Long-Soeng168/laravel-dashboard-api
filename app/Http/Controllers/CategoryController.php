@@ -11,9 +11,14 @@ use Intervention\Image\Laravel\Facades\Image as ImageIntervention;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::orderBy('title', 'asc')->get();
+        $perPage = $request->perPage ?? 10;
+        $orderBy = $request->orderBy ?? 'title';
+        $orderDir = $request->orderDir ?? 'asc';
+        $query = Category::query();
+        $query = Category::query();
+        $categories = $query->orderBy($orderBy, $orderDir)->paginate($perPage);
         return response()->json($categories);
     }
 
@@ -90,7 +95,7 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        // return $r->all();
+        // return $request->all();
         $category = Category::find($id);
 
         if (empty($category)) {
