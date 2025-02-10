@@ -17,12 +17,14 @@ return new class extends Migration
             $table->string('short_description', 500);
             $table->text('description');
             $table->decimal('price', 10, 2);
+
             $table->string('category_code')->nullable();
             $table->foreign('category_code')
                 ->references('code')
                 ->on('categories')
                 ->onUpdate('CASCADE')
                 ->onDelete('SET NULL');
+
             $table->timestamps();
         });
     }
@@ -32,6 +34,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Step 1: Drop foreign key first
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropForeign(['category_code']); // Drop the foreign key constraint
+        });
+
+        // Step 2: Now it's safe to drop the table
         Schema::dropIfExists('products');
     }
 };

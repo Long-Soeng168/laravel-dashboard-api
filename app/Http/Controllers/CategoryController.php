@@ -29,6 +29,8 @@ class CategoryController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'title_kh' => 'required|string|max:255',
+                'order_index' => 'nullable|string|max:255',
+                'parent_code' => 'nullable|string|max:255|exists:categories,code',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'code' => 'required|string|unique:categories,code',
             ]);
@@ -108,6 +110,8 @@ class CategoryController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'title_kh' => 'required|string|max:255',
+                'order_index' => 'nullable|string|max:255',
+                'parent_code' => 'nullable|string|max:255',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'code' => 'required|string|unique:categories,code, ' . $id,
             ]);
@@ -183,6 +187,38 @@ class CategoryController extends Controller
             return response()->json([
                 'message' => 'Resource not found.',
             ], 404);
+        }
+
+        // Define the path
+        $file_path = public_path('images/categories/');
+        $file_thumb_path = public_path('images/categories/thumb/');
+
+        if ($category->image) {
+            $old_image_path = $file_path . $category->image;
+            $old_thumb_path = $file_thumb_path . $category->image;
+
+            if (File::exists($old_image_path)) {
+                File::delete($old_image_path);
+            }
+            if (File::exists($old_thumb_path)) {
+                File::delete($old_thumb_path);
+            }
+        }
+
+        if (count($category->children) > 0) {
+            foreach ($category->children as $key => $child) {
+                if ($child->image) {
+                    $old_image_path = $file_path . $child->image;
+                    $old_thumb_path = $file_thumb_path . $child->image;
+
+                    if (File::exists($old_image_path)) {
+                        File::delete($old_image_path);
+                    }
+                    if (File::exists($old_thumb_path)) {
+                        File::delete($old_thumb_path);
+                    }
+                }
+            }
         }
 
         $category->delete();
