@@ -9,16 +9,64 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image as ImageIntervention;
 
+use function Laravel\Prompts\search;
+
 class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->perPage ?? 10;
-        $orderBy = $request->orderBy ?? 'title';
-        $orderDir = $request->orderDir ?? 'asc';
+        $search = $request->search ?? null;
+        $status = $request->status ?? null;
+        $sort_by = $request->sort_by ?? null;
+        $per_page = $request->per_page ?? 10;
+        $parent_code = $request->parent_code ?? null;
+        $main_category = $request->main_category ?? '0';
+
         $query = Category::query();
-        $query = Category::query();
-        $categories = $query->orderBy($orderBy, $orderDir)->paginate($perPage);
+
+        if ($search !== null) {
+            $query->where(function ($sub_query) use ($search) {
+                $sub_query->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('title_kh', 'LIKE', '%' . $search . '%')
+                    ->orWhere('code', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        if ($status != null) {
+            $query->where('status', $status);
+        }
+
+        if ($parent_code != null) {
+            $query->where('parent_code', $parent_code);
+        }
+
+        if ($main_category == '1') {
+            $query->where('parent_code', null);
+        }
+
+
+        switch ($sort_by) {
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'title_asc';
+                $query->orderBy('title', 'asc');
+                break;
+            case 'order_index_desc';
+                $query->orderBy('order_index', 'desc');
+                break;
+            case 'order_index_asc';
+                $query->orderBy('order_index', 'asc');
+                break;
+        }
+
+
+
+
+        $categories = $query
+            ->orderBy('order_index', 'asc')
+            ->orderBy('id', 'desc')
+            ->paginate($per_page);
         return response()->json($categories);
     }
 
@@ -79,7 +127,7 @@ class CategoryController extends Controller
         }
 
         $createdItem = Category::create($validated);
-        return response()->json($createdItem, 201);
+        return response()->json($createdItem, 200);
     }
 
     public function show($id)
@@ -174,10 +222,40 @@ class CategoryController extends Controller
             $validated['image'] = $category->image;
         }
 
-
         $category->update($validated);
-        return response()->json($category);
+
+        return response()->json([
+            'message' => 'Category updated successfully.',
+            'category' => $category,
+        ]);
     }
+    public function updateStatus(Request $request, $id)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'status' => 'required|boolean', // Adjust validation as needed
+        ]);
+
+        // Find the category
+        $category = Category::find($id);
+
+        // Handle case when category is not found
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found.',
+            ], 404);
+        }
+
+        // Update status
+        $category->update(['status' => $validated['status']]);
+
+        // Return updated category
+        return response()->json([
+            'message' => 'Status updated successfully.',
+            'category' => $category,
+        ]);
+    }
+
 
     public function destroy($id)
     {

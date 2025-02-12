@@ -15,6 +15,7 @@ Route::get('/test', function (Request $request) {
 
 Route::apiResource('categories', CategoryController::class);
 Route::post('categories/{id}/update', [CategoryController::class, 'update']);
+Route::post('categories/{id}/update_status', [CategoryController::class, 'updateStatus']);
 
 Route::apiResource('products', ProductController::class);
 Route::post('products/{id}/update', [ProductController::class, 'update']);
