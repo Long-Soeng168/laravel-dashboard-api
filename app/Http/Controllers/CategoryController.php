@@ -74,6 +74,7 @@ class CategoryController extends Controller
     {
 
         try {
+            // return $request->all();
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'title_kh' => 'required|string|max:255',
@@ -82,6 +83,7 @@ class CategoryController extends Controller
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'code' => 'required|string|unique:categories,code',
             ]);
+            // return $validated;
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed.',
@@ -283,8 +285,8 @@ class CategoryController extends Controller
             }
         }
 
-        if (count($category->children) > 0) {
-            foreach ($category->children as $key => $child) {
+        if (count($category->sub_categories) > 0) {
+            foreach ($category->sub_categories as $key => $child) {
                 if ($child->image) {
                     $old_image_path = $file_path . $child->image;
                     $old_thumb_path = $file_thumb_path . $child->image;

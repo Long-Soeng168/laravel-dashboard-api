@@ -9,7 +9,7 @@ class Category extends Model
     protected $table = 'categories';
     protected $guarded = [];
 
-    public function children()
+    public function sub_categories()
     {
         return $this->hasMany(Category::class, 'parent_code', 'code');
     }
