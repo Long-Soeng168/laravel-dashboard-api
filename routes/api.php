@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -19,3 +20,6 @@ Route::post('categories/{id}/update_status', [CategoryController::class, 'update
 
 Route::apiResource('products', ProductController::class);
 Route::post('products/{id}/update', [ProductController::class, 'update']);
+
+Route::apiResource('brands', controller: BrandController::class);
+Route::post('brands/{id}/update', [BrandController::class, 'update']);  

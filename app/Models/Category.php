@@ -11,6 +11,6 @@ class Category extends Model
 
     public function sub_categories()
     {
-        return $this->hasMany(Category::class, 'parent_code', 'code');
+        return $this->hasMany(Category::class, 'parent_code', localKey: 'code');
     }
 }
