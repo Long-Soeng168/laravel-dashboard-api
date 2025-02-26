@@ -6,6 +6,19 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// ===== File Manager =====
+
+Route::post('/flmngr', function () {
+
+    \EdSDK\FlmngrServer\FlmngrServer::flmngrRequest(
+        array(
+            'dirFiles' => base_path() . '/public/files'
+        )
+    );
+});
+
+// ===== Dashboard Route =====
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -23,12 +36,3 @@ Route::post('products/{id}/update', [ProductController::class, 'update']);
 
 Route::apiResource('brands', controller: BrandController::class);
 Route::post('brands/{id}/update', [BrandController::class, 'update']);
-
-Route::post('/flmngr', function () {
-
-    \EdSDK\FlmngrServer\FlmngrServer::flmngrRequest(
-        array(
-            'dirFiles' => base_path() . '/public/files'
-        )
-    );
-});
