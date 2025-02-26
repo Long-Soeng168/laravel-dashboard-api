@@ -23,3 +23,12 @@ Route::post('products/{id}/update', [ProductController::class, 'update']);
 
 Route::apiResource('brands', controller: BrandController::class);
 Route::post('brands/{id}/update', [BrandController::class, 'update']);
+
+Route::post('/flmngr', function () {
+
+    \EdSDK\FlmngrServer\FlmngrServer::flmngrRequest(
+        array(
+            'dirFiles' => base_path() . '/public/files'
+        )
+    );
+});
