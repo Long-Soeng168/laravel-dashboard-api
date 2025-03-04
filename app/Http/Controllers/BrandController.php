@@ -50,7 +50,7 @@ class BrandController extends Controller
                 'order_index' => 'nullable|string|max:255',
                 'created_by' => 'nullable|string|max:255',
                 'updated_by' => 'nullable|string|max:255',
-                'image' => 'nullable|image|string|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'code' => 'required|string|unique:brands,code',
             ]);
             // return $validated;
@@ -142,7 +142,7 @@ class BrandController extends Controller
                 'order_index' => 'nullable|string|max:255',
                 'created_by' => 'nullable|string|max:255',
                 'updated_by' => 'nullable|string|max:255',
-                'image' => 'nullable|image|string|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'code' => 'required|string|unique:brands,code',
             ]);
             // return $validated;
@@ -150,7 +150,7 @@ class BrandController extends Controller
             return response()->json([
                 'message' => 'Validation failed.',
                 'errors' => $e->errors(),
-            ], 422); 
+            ], 422);
         }
 
 
