@@ -143,7 +143,7 @@ class BrandController extends Controller
                 'created_by' => 'nullable|string|max:255',
                 'updated_by' => 'nullable|string|max:255',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'code' => 'required|string|unique:brands,code',
+                'code' => 'required|string|unique:brands,code, ' . $id,
             ]);
             // return $validated;
         } catch (ValidationException $e) {

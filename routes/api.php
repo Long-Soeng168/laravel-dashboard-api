@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BlogCategoryController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -36,3 +38,11 @@ Route::post('products/{id}/update', [ProductController::class, 'update']);
 
 Route::apiResource('brands', controller: BrandController::class);
 Route::post('brands/{id}/update', [BrandController::class, 'update']);
+
+
+Route::apiResource('blog_categories', BlogCategoryController::class);
+Route::post('blog_categories/{id}/update', [BlogCategoryController::class, 'update']);
+Route::post('blog_categories/{id}/update_status', [BlogCategoryController::class, 'updateStatus']);
+
+Route::apiResource('blogs', BlogController::class);
+Route::post('blogs/{id}/update', [BlogController::class, 'update']);
