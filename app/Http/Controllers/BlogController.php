@@ -98,6 +98,7 @@ class BlogController extends Controller
                 'created_by' => 'nullable|string|max:255',
                 'updated_by' => 'nullable|string|max:255',
 
+
             ]);
             // return $validated;
         } catch (ValidationException $e) {

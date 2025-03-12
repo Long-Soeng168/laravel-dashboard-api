@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogImageController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -46,3 +47,6 @@ Route::post('blog_categories/{id}/update_status', [BlogCategoryController::class
 
 Route::apiResource('blogs', BlogController::class);
 Route::post('blogs/{id}/update', [BlogController::class, 'update']);
+
+Route::apiResource('blog_images', BlogImageController::class);
+Route::post('blog_images/{id}/update', [BlogImageController::class, 'update']);

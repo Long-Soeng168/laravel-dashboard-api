@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('order_index')->default(1);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
+            
 
             $table->string('blog_category_code')->nullable();
             $table->foreign('blog_category_code')
